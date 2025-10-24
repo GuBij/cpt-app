@@ -1,0 +1,18 @@
+# Virtuele environments
+venv/
+env/
+.venv/
+
+# Log files
+*.log
+
+# Windows files
+Thumbs.db
+
+# Bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+
+# PyCharm project files
+.idea/

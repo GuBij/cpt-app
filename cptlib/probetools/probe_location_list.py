@@ -2,6 +2,7 @@ from collections import namedtuple
 
 import requests
 from bs4 import BeautifulSoup
+from io import BytesIO
 from shapely import wkt
 from shapely.geometry import Point 
 
@@ -67,9 +68,10 @@ class ProbeLocationList:
   # ========== PUBLIC METHODS ==========
 
   def in_polygon(self, wkt_fmt: str, output_file_name: str = 
-                        'in_polygon_output') -> None:
+                        'in_polygon_output', bytesio: bool = False) -> BytesIO | None:
     """
-    Extract the probe locations laying within the polygon *wkt_fmt* in WKT format and write the corresponding probe numbers to the text file *output_file_name*.
+    Extract the probe locations laying within the polygon *wkt_fmt* in WKT format and write the corresponding probe numbers to the text file *output_file_name*
+    or to a BytesIO object if *bytesio* is True.
     """
     polygon = wkt.loads(wkt_fmt)
     
@@ -78,10 +80,18 @@ class ProbeLocationList:
       if polygon.contains(Point(loc.x_coord, loc.y_coord)):
         indices.append(counter)
 
+    if bytesio:
+      content: str = ""
+      for index in indices:
+        content = content + f"\n{self._locations[index].number}"
+
+      file_bytesio = BytesIO(content.encode('utf-8'))
+      file_bytesio.seek(0)
+      return file_bytesio
+
     with open(output_file_name + '.txt', 'w') as file:
       for index in indices:
         file.write("\n" + self._locations[index].number)
 
     print('\nProbes laying inside the polygon','\n\n\t', wkt_fmt, '\n\n',
           f'have been written to file {output_file_name}.txt')
-    

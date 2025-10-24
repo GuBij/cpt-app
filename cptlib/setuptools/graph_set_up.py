@@ -4,6 +4,8 @@ from typing import Any
 import matplotlib.axes as axs
 import matplotlib.figure as fig
 import matplotlib.pyplot as plt
+
+from io import BytesIO
 from matplotlib.text import Text
 
 from cptlib.setuptools.measurement import QUANTITIES, UNITS
@@ -99,7 +101,12 @@ class GraphSetUp:
       self._axes.legend(list(by_label.values()), list(by_label.keys()),
                         fontsize=self._legend_font_size)
 
-  def save(self) -> None:
-    "Save the figure to a png file named *_file_name*."
-    self._fig.savefig(self._file_name + '.png')
-  
+  def save(self, bytesio: bool = False) -> BytesIO | None:
+    "Save the figure to a png file named *_file_name* or to a png BytesIO object if *bytesio* is *True*."
+    if bytesio:
+      bytesio_fig = BytesIO()
+      self._fig.savefig(bytesio_fig, format='png')
+      bytesio_fig.seek(0)
+      return bytesio_fig
+    else:
+      self._fig.savefig(self._file_name + '.png')
